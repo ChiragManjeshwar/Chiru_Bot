@@ -1,13 +1,13 @@
 import discord
-import asyncio
 
-from Bot_Functions import incorrect_call, verify_input, trim_input
+from Bot_Functions import incorrect_command, verify_input, trim_input
 from Constants import prefix, help_info
+import Bot_Games as Bot_Game
 
 commands = {}
 
 def command_dict( function ):
-    commands[function.__name__] = function
+    commands[ function.__name__ ] = function
     return function
 
 async def help_message( message ):
@@ -16,30 +16,30 @@ async def help_message( message ):
                            color=0xf7ff28 )
 
     for i in help_info:
-            embed.add_field( name = i,
-                            value = (help_info[i])[0],
-                            inline = False )
+        embed.add_field( name = i,
+                        value = (help_info[i])[0],
+                        inline = False )
     await message.channel.send( embed = embed )
 
 @command_dict
 async def help( message ):
-    if ( len(message.content) == len( prefix ) + len( help.__name__ ) ):
+    if ( len( message.content ) == len( prefix ) + len( help.__name__ ) ):
          await help_message( message )
          return
     
-    if ( not ( await verify_input ( message, help.__name__ ) ) ):
+    if ( not ( await verify_input( message, help.__name__ ) ) ):
         return
 
     help_command = trim_input( message.content , help.__name__ )
 
     try:
-        await message.channel.send( (help_info[ help_command ])[1] )
+        await message.channel.send( ( help_info[ help_command ] )[ 1 ] )
     except:
-        await incorrect_call( message.channel )
+        await incorrect_command( message.channel )
 
 @command_dict   
 async def say( message ):
-    if ( not ( await verify_input ( message, say.__name__ ) ) ):
+    if ( not ( await verify_input( message, say.__name__ ) ) ):
         return
 
     message_to_say = trim_input( message.content , say.__name__ )
@@ -48,7 +48,23 @@ async def say( message ):
     await message.channel.send( message_to_say )
 
 @command_dict
+async def play( message ):
+    if ( not ( await verify_input( message, play.__name__ ) ) ):
+        pass # display menu
+        return
+
+    game_to_play = trim_input( message.content, play.__name__).lower()
+              
+    if ( game_to_play == 'tictactoe' ):
+        await Bot_Game.tic_tac_toe( message )
+        return
+
+    # ADD MORE GAMES
+
+@command_dict
 async def terminate( message ):
+    # if ()
     if ( len( message.content ) == len( prefix ) + len( terminate.__name__ ) ):
+        await message.delete()
         await message.channel.send( 'Bye!' )
         quit()
